@@ -3,7 +3,7 @@ options(warn=-1)
 setwd("C:/Users/ASUS/Documents/06 noart/030 datascience/Exercice 01/01 data")
 market = read.table("market.csv", sep=";", dec=".", header=T)
 
-# ================================================================ #
+# ================================================================ #  changement pour github
 #                                                                  #
 #          N E T T O Y A G E     D E S    D O N N E E S            #
 #                                                                  #
@@ -30,18 +30,18 @@ market$prod_cost[is.na(market$prod_cost)] <- median(market$prod_cost, na.rm=T)
 sum(is.na(market))
 
 # --------------------------------------------------------------- #
-# Normalité des données non factorielles et non ID                #
+# NormalitÃ© des donnÃ©es non factorielles et non ID                #
 # --------------------------------------------------------------- #
 str(market)
 unclass(market$product_type)
-# shapiro test marche sur factors ? non uniqt variables quanti + tests linéaires en général
+# shapiro test marche sur factors ? non uniqt variables quanti + tests linÃ©aires en gÃ©nÃ©ral
 shapiro.test(market$capacity)
 shapiro.test(market$failure_rate)
 shapiro.test(market$margin)
 shapiro.test(market$price)
 shapiro.test(market$prod_cost)
 shapiro.test(market$market_share)
-# p-value < 2.2e-16 pour toutes les données
+# p-value < 2.2e-16 pour toutes les donnÃ©es
 
 # ================================================================ #
 #                                                                  #
@@ -61,7 +61,7 @@ ntest = ceiling(n*ratio)
 test20 =  sample(1:n, ntest)
 appr80 = setdiff(1:n, test20)
 # ------------------------------------------------------------- #
-#construction de l'échantillon d'apprentissage de 80% avec la table appr80
+#construction de l'Ã©chantillon d'apprentissage de 80% avec la table appr80
 # ------------------------------------------------------------- #
 data_train80 = market[appr80, ]
 data_test20  = market[test20, ]
@@ -103,7 +103,7 @@ names(compar_erreurs)= modeles
 # ===================================================================== #
 
 # ------------------------------------------------------------- #
-# M O D E L E    N A I F     1    toutes les données            #
+# M O D E L E    N A I F     1    toutes les donnÃ©es            #
 # ------------------------------------------------------------- #
 formula1 = attractiveness ~ capacity+failure_rate+margin+price+prod_cost+product_type+quality+warranty+market_share
 reglin1=lm(formula1,data=data_train80)
@@ -111,7 +111,7 @@ data_test20$pred1 =  predict(reglin1, newdata = data_test20)
 compar_erreurs["modele.naif1"] <- rmsle(data_test20$attractiveness, data_test20$pred1)
 compar_erreurs
 # ------------------------------------------------------------- #
-# M O D E L E    N A I F     2    données significatives        #
+# M O D E L E    N A I F     2    donnÃ©es significatives        #
 # ------------------------------------------------------------- #
 formula2 = attractiveness~capacity+margin+product_type
 reglin2=lm(formula2,data=data_train80)
@@ -178,7 +178,7 @@ library(pls)
 PLS0 = plsr(formula1, data=data_train80, validation = "CV")
 #nombre de composantes choisies
 ncomp = length((coef(PLS0)))
-#calcul des prédictions
+#calcul des prÃ©dictions
 pred.PLS0        <- predict(PLS0, newdata=data_test20)
 #calcul erreur ds table 
 compar_erreurs["PLS0"] <- rmsle(pred.PLS0,Ytest20)
@@ -189,7 +189,7 @@ compar_erreurs["PLS0"] <- rmsle(pred.PLS0,Ytest20)
 if (!require("randomForest")) install.packages("randomForest")
 library(randomForest)
 # utilisation de formula1 = attractiveness ~ capacity+failure_rate+margin+price+prod_cost+product_type+quality+warranty+market_share
-# augmenter drastiquement le nombre d'arbres n'améliore pas significativement le taux d'erreur, mais multipliera le temps de calcul.
+# augmenter drastiquement le nombre d'arbres n'amÃ©liore pas significativement le taux d'erreur, mais multipliera le temps de calcul.
 
 modelRF <- randomForest(formula1, data =data_train80, ntree = 5000, na.action = na.omit)
 data_test20$pred6 =  predict(modelRF, newdata = data_test20)
@@ -198,7 +198,7 @@ compar_erreurs
 
 # ------------------------------------------------------------- #
 #  M O D E L E    S V M                      
-# noyaux sigmoïde (1/(1+e^-x)), radial, linéaire
+# noyaux sigmoÃ¯de (1/(1+e^-x)), radial, linÃ©aire
 # https://scikit-learn.org/stable/modules/svm.html
 # https://fr.wikipedia.org/wiki/Hyperparam%C3%A8tre
 # https://lrouviere.github.io/TUTO_ML/SVM.html
@@ -207,7 +207,7 @@ compar_erreurs
 if (!require("e1071")) install.packages("e1071")
 library(e1071)
 
-#===================optimisation des paramètres SVM
+#===================optimisation des paramÃ¨tres SVM
 obj = tune.svm(formula1, data = data_train80, gamma = 2^(-10:-1), cost = 2^(2:4))
 summary(obj) 
 plot(obj)
@@ -220,16 +220,16 @@ compar_erreurs
 # ------------------------------------------------------------------------- #
 #             M O D E L E    B A G G I N G                                  #
 #                 REGRESSION AVEC R                                         #
-# modèle d'aggrégation de modèles avec échantillon indépendant aléatoire    # 
-# calcule plusieurs prédicteurs et fait la moyenne des résutats             #
-# obtenus par chaque échantillon                                            #
-# permet de réduire la variance                                             #
-# utilise le bootstrap (amorce) comme méthode d'échantillonage avec remise  #
+# modÃ¨le d'aggrÃ©gation de modÃ¨les avec Ã©chantillon indÃ©pendant alÃ©atoire    # 
+# calcule plusieurs prÃ©dicteurs et fait la moyenne des rÃ©sutats             #
+# obtenus par chaque Ã©chantillon                                            #
+# permet de rÃ©duire la variance                                             #
+# utilise le bootstrap (amorce) comme mÃ©thode d'Ã©chantillonage avec remise  #
 # ------------------------------------------------------------------------- #
 #===================chargement librairie
 if (!require("ipred")) install.packages("ipred")
 library(ipred)
-#===================modèle bagging
+#===================modÃ¨le bagging
 model_bagging <- bagging(formula1, data=data_train80, scale = TRUE)
 data_test20$predbag =  predict(model_bagging, newdata = data_test20)
 compar_erreurs["modele.bagging"] = rmsle(data_test20$attractiveness, data_test20$predbag)
@@ -243,14 +243,14 @@ compar_erreurs
 #                                                                                     #
 # liens saber
 # https://www.math.univ-toulouse.fr/~besse/Wikistat/pdf/st-m-app-agreg.pdf
-# codes nécessaires pour faire de l'aggrégation de modèles
+# codes nÃ©cessaires pour faire de l'aggrÃ©gation de modÃ¨les
 # https://www.math.univ-toulouse.fr/~besse/Wikistat/pdf/st-scenar-app-ozone-meteoF.pdf
 #
 # ------------------------------------------------------------------------- #
 #===================chargement librairie
 if (!require("gbm")) install.packages("gbm")
 library(gbm)
-#===================modèle bagging
+#===================modÃ¨le bagging
 model_boosting <- gbm(formula1, data=data_train80)
 data_test20$predboost  =  predict(model_boosting, newdata = data_test20, n.trees=4000, n.minobsinnode = 5, shrinkage=0.01,verbose=TRUE)
 compar_erreurs["modele.boosting"] = rmsle(data_test20$attractiveness, data_test20$predboost)
@@ -258,18 +258,18 @@ compar_erreurs
 
 # ------------------------------------------------------------------------- #
 #             M O D E L E    R E S E A U X   DE N E U R O N E              #
-# réseaux de neurones sont trop performants car pbm surapprentissage
+# rÃ©seaux de neurones sont trop performants car pbm surapprentissage
 # ------------------------------------------------------------------------- #
 #===================chargement librairie
 if (!require("e1071")) install.packages("e1071")
 library(e1071)
 library(nnet)
-#===================modèle bagging
+#===================modÃ¨le bagging
 # model_rn <- 
 plot(tune.nnet(formula1,data=data_train80,size=c(2,3,4),
                decay=3,maxit=2,linout=TRUE))
 ?nnet
-# d'après le schéma decay = 3 et maxit = 2 
+# d'aprÃ¨s le schÃ©ma decay = 3 et maxit = 2 
 model_RN <- nnet(formula1, data=data_train80, size=3, decay=3,maxit=2)
 data_test20$predrn  =  predict(model_RN, newdata = data_test20)
 compar_erreurs["modele.RN"] = rmsle(data_test20$attractiveness, data_test20$predrn)
